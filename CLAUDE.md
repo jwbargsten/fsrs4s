@@ -23,24 +23,22 @@ fsrs4s is a Scala 3 implementation of the FSRS (Free Spaced Repetition Scheduler
 
 ## Architecture
 
-### Core FSRS Algorithm (`org.bargsten.learn.fsrs`)
-- `Scheduler` - Main scheduling logic implementing FSRS-5 algorithm with 21 weight parameters
+All code lives in `org.bargsten.fsrs`:
+
+- `Scheduler` - Main scheduling logic implementing FSRS-6 algorithm with 21 weight parameters
 - `Card` - Flashcard with state (Learning/Review/Relearning), stability, difficulty, due date
 - `Parameters` - Algorithm config: weights, desired retention (default 0.9), learning/relearning steps
 - `Rating` - User response: Again, Hard, Good, Easy
 - `Review` - Captures rating + timestamp for a card review
+- `CardId` - Opaque UUID wrapper
+- `Days` - Opaque Int for day intervals (in `DateTimeUtil.scala`)
 
-### Data Layer (`org.bargsten.learn`)
-- `CardRepo` trait - Persistence interface (implementation pending)
-- `model` - Domain types: `UserId`, `Deck` (opaque String wrappers)
+## FSRS Algorithm References
 
-### Key Types
-- `CardId` - Opaque UUID wrapper (in `fsrs/model.scala`)
-- `Days` - Opaque Int for day intervals (in `DateTimeUtil`)
-
-## Reference Implementation
-
-The `py-fsrs/` directory contains the Python reference implementation of FSRS. Use it to verify algorithm correctness when modifying `Scheduler.scala`.
+When modifying `Scheduler.scala`, verify against the reference implementation and algorithm docs:
+- [FSRS Algorithm Wiki](https://github.com/open-spaced-repetition/fsrs4anki/wiki/The-Algorithm)
+- [Technical explanation of FSRS](https://expertium.github.io/Algorithm.html)
+- [Anki FSRS Deck Options](https://docs.ankiweb.net/deck-options.html#fsrs)
 
 ## Before Writing Code
 

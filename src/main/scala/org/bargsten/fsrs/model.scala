@@ -83,6 +83,15 @@ object Parameters {
   val Default = Parameters()
 
   val defaultDecay = 0.1542
+
+  /*
+  - w0-w3: initial stability per rating
+  - w4-w7: difficulty calculations
+  - w8-w16: stability calculations for recall
+  - w17-w19: short-term stability parameters
+  - w20: decay
+   */
+
   val defaultWeights: Seq[Double] =
     List(
       0.212,
