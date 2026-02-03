@@ -6,14 +6,16 @@ import java.time.{OffsetDateTime, ZoneOffset}
 import java.util.UUID
 import scala.concurrent.duration.*
 
-opaque type CardId <: UUID = UUID
+opaque type CardId = String
 
 object CardId {
-  def apply(uuid: UUID): CardId = uuid
+  def apply(uuid: UUID): CardId = uuid.toString
+  def apply(value: String): CardId = value
+
   def generate(): CardId = CardId(UUID.randomUUID())
-  val empty: CardId = CardId(UUID(0, 0))
+
   extension (id: CardId) {
-    def unwrap: UUID = id
+    def unwrap: String = id
   }
 }
 
