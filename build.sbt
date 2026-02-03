@@ -22,7 +22,7 @@ lazy val root = project
   .in(file("."))
   .settings(
     name := "fsrs4s",
-    version := "0.1.0",
+    version := "0.1.1",
 
     scalaVersion := scala3Version,
 

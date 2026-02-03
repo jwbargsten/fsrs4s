@@ -3,4 +3,5 @@ fmt:
 	sbt scalafmtAll
 
 clean:
-	rm -rf target/
+	-find -name target -exec rm -rf \{\} \;
+	sbt clean
