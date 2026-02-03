@@ -11,7 +11,7 @@ idiomatic Scala feeling.
 ```scala
 import org.bargsten.fsrs.*
 
-val scheduler = Scheduler(Parameters.default)
+val scheduler = Scheduler()
 val card = Card.create()
 
 // Review a card

@@ -1,6 +1,6 @@
 package org.bargsten.fsrs
 
-import java.time.{OffsetDateTime, Period, ZonedDateTime, Duration as JDuration}
+import java.time.{Clock, OffsetDateTime, Period, Duration as JDuration}
 import scala.concurrent.duration.*
 
 object DateTimeUtil {

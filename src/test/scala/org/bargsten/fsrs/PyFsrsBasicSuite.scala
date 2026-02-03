@@ -4,13 +4,14 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.bargsten.fsrs.DateTimeUtil.Days
 import org.bargsten.fsrs.{Card, Parameters, Rating, Review, Scheduler, State}
 
-import java.time.{OffsetDateTime, ZoneOffset}
+import java.time.{Clock, Instant, OffsetDateTime, ZoneOffset}
 import java.time.temporal.ChronoUnit
 import scala.concurrent.duration.*
 import scala.util.Random
 
 class PyFsrsBasicSuite extends AnyFunSuite {
   val now = OffsetDateTime.of(2022, 11, 29, 12, 30, 0, 0, ZoneOffset.UTC)
+  given Clock = Clock.fixed(now.toInstant, ZoneOffset.UTC)
 
   val testRatings1 = List(
     Rating.Good,

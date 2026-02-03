@@ -4,16 +4,18 @@ import DateTimeUtil.Days
 import DateTimeUtil.between
 import util.cond
 
-import java.time.{OffsetDateTime, ZoneOffset}
+import java.time.{Clock, OffsetDateTime, ZoneOffset}
 import scala.concurrent.duration.*
 import scala.util.Random
 
-class Scheduler(p: Parameters, random: Random = Random) {
+class Scheduler(p: Parameters = Parameters(), rng: Random = Random())(using
+    clock: Clock = Clock.systemUTC()
+) {
   private val decay = -p.weights.last
   private val factor = Math.pow(0.9, 1 / decay) - 1
   private val minStability = 0.001
 
-  def calcRetrievability(card: Card, now: OffsetDateTime = OffsetDateTime.now()): Double =
+  def calcRetrievability(card: Card, now: OffsetDateTime = OffsetDateTime.now(clock)): Double =
     if (card.lastReview.isEmpty || card.stability <= 0.0) {
       0.0
     } else {
@@ -215,7 +217,7 @@ class Scheduler(p: Parameters, random: Random = Random) {
 
     val (minIvl, maxIvl) = getFuzzRange(intervalDays)
     val fuzzedDays = math.min(
-      math.round(random.nextDouble() * (maxIvl - minIvl + 1) + minIvl).toInt,
+      math.round(rng.nextDouble() * (maxIvl - minIvl + 1) + minIvl).toInt,
       p.maximumInterval.unwrap
     )
     Days(fuzzedDays).toDuration

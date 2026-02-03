@@ -4,14 +4,15 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.bargsten.fsrs.Rating.Easy
 import org.bargsten.fsrs.{Card, Parameters, Rating, Review, Scheduler, State}
 
-import java.time.{OffsetDateTime, ZoneOffset}
+import java.time.{Clock, Instant, OffsetDateTime, ZoneOffset}
 import java.time.temporal.ChronoUnit
 import scala.concurrent.duration.*
 
 class SchedulerSuite extends AnyFunSuite {
+  val now = OffsetDateTime.of(2024, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC)
+  given Clock = Clock.fixed(now.toInstant, ZoneOffset.UTC)
   val params = Parameters(withFuzzing = false)
   val scheduler = new Scheduler(params)
-  val now = OffsetDateTime.of(2024, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC)
 
   test("new card with Good rating initializes stability and difficulty") {
     val card = Card()

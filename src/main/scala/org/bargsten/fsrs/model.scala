@@ -80,8 +80,6 @@ case class Parameters(
 case class FuzzRange(start: Double, end: Double, factor: Double)
 
 object Parameters {
-  val Default = Parameters()
-
   val defaultDecay = 0.1542
 
   /*
@@ -92,7 +90,7 @@ object Parameters {
   - w20: decay
    */
 
-  val defaultWeights: Seq[Double] =
+  lazy val defaultWeights: Seq[Double] =
     List(
       0.212,
       1.2931,
