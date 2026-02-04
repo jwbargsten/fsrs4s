@@ -1,10 +1,8 @@
 package org.bargsten.fsrs
 
-import DateTimeUtil.Days
-import DateTimeUtil.between
-import util.cond
+import org.bargsten.fsrs.util.{between, cond}
 
-import java.time.{Clock, OffsetDateTime, ZoneOffset}
+import java.time.{Clock, OffsetDateTime}
 import scala.concurrent.duration.*
 import scala.util.Random
 
@@ -234,7 +232,7 @@ class Scheduler(p: Parameters = Parameters(), rng: Random = Random())(using
     if (clamp) clampDifficulty(d) else d
   }
 
-  def clampDifficulty(d: Double): Double = math.min(math.max(d, 1), 10)
+  private def clampDifficulty(d: Double): Double = math.min(math.max(d, 1), 10)
 
   private def calcNextInterval(stability: Double): Days = {
     val newInterval = stability / factor * (math.pow(p.desiredRetention, 1 / decay) - 1)

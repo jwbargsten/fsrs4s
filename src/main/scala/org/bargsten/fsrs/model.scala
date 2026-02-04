@@ -1,10 +1,34 @@
 package org.bargsten.fsrs
 
-import DateTimeUtil.{Days, between}
+import org.bargsten.fsrs.util.between
 
-import java.time.{OffsetDateTime, ZoneOffset}
+import java.time.{OffsetDateTime, Period, ZoneOffset}
 import java.util.UUID
 import scala.concurrent.duration.*
+
+opaque type Days = Int
+
+object Days {
+  def apply(d: Int): Days = d
+
+  def apply(d: java.time.Duration): Days = d.toDays.toInt
+
+  def apply(d: Duration): Days = d.toDays.toInt
+
+  val Zero: Days = 0
+  val One: Days = 1
+
+  extension (x: Days) {
+    def >(y: Days): Boolean = x > y
+    def <(y: Days): Boolean = x < y
+    def <=(y: Days): Boolean = x <= y
+    def >=(y: Days): Boolean = x >= y
+
+    def unwrap: Int = x
+    def toPeriod: Period = Period.ofDays(x)
+    def toDuration: Duration = x.days
+  }
+}
 
 opaque type CardId = String
 
@@ -117,7 +141,7 @@ object Parameters {
       defaultDecay
     )
 
-  val fuzzRanges = List(
+  private[fsrs] val fuzzRanges: Seq[FuzzRange] = List(
     FuzzRange(2.5, 7.0, 0.15),
     FuzzRange(7.0, 20.0, 0.1),
     FuzzRange(20.0, Double.PositiveInfinity, 0.05)
@@ -126,7 +150,7 @@ object Parameters {
   private val stabilityMin = 0.001
   private val stabilityMax = 100.0
 
-  val lowerBounds: Seq[Double] = List(
+  private[fsrs] val lowerBounds: Seq[Double] = List(
     stabilityMin,
     stabilityMin,
     stabilityMin,
@@ -150,7 +174,7 @@ object Parameters {
     0.1
   )
 
-  val upperBounds: Seq[Double] = List(
+  private[fsrs] val upperBounds: Seq[Double] = List(
     stabilityMax,
     stabilityMax,
     stabilityMax,
@@ -174,7 +198,7 @@ object Parameters {
     0.8
   )
 
-  def validate(weights: Seq[Double]): Either[List[String], Unit] = {
+  private[fsrs] def validate(weights: Seq[Double]): Either[List[String], Unit] = {
     val errors = scala.collection.mutable.ListBuffer[String]()
     if (weights.size != lowerBounds.size)
       errors += s"Expected ${lowerBounds.size} weights, got ${weights.size}"
