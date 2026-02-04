@@ -1,6 +1,4 @@
-import java.net.URI
-
-val scala3Version = "3.8.1"
+val scalacVersion = "3.8.1"
 val catsVersion = "2.12.0"
 val scodecBitsVersion = "1.2.1"
 val munitVersion = "1.0.2"
@@ -18,14 +16,21 @@ val vziologging = "2.5.3"
 ThisBuild / organization := "org.bargsten"
 ThisBuild / organizationName := "Joachim Bargsten"
 
+ThisBuild / version := "0.1.3"
+
 lazy val root = project
   .in(file("."))
+  .aggregate(core, java)
+  .settings(
+  scalaVersion := scalacVersion,
+      publish / skip := true
+  )
+
+lazy val core = project
+  .in(file("core"))
   .settings(
     name := "fsrs4s",
-    version := "0.1.2",
-
-    scalaVersion := scala3Version,
-
+    scalaVersion := scalacVersion,
     libraryDependencies ++= Seq(
       "org.typelevel" %% "cats-core" % vCats,
       "org.scalatest" %% "scalatest" % "3.2.19" % "test",
@@ -33,7 +38,21 @@ lazy val root = project
     )
   )
 
-ThisBuild / organizationHomepage := Some(url("http://example.com/"))
+lazy val java = project
+  .in(file("java"))
+  .settings(
+    scalaVersion := scalacVersion,
+    name := "fsrs4s-java",
+    crossPaths := false,
+    publish / skip := true,
+    libraryDependencies ++= Seq(
+    "org.junit.jupiter" % "junit-jupiter" % "6.0.2" % "test",
+    "org.assertj" % "assertj-core" % "3.27.6" % "test"
+  ))
+
+  .dependsOn(core)
+
+ThisBuild / organizationHomepage := Some(url("https://bargsten.org/"))
 
 ThisBuild / scmInfo := Some(
   ScmInfo(

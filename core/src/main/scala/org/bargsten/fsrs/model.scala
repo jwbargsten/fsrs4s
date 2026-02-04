@@ -147,8 +147,8 @@ object Parameters {
     FuzzRange(20.0, Double.PositiveInfinity, 0.05)
   )
 
-  private val stabilityMin = 0.001
-  private val stabilityMax = 100.0
+  private[fsrs] val stabilityMin = 0.001
+  private[fsrs] val stabilityMax = 100.0
 
   private[fsrs] val lowerBounds: Seq[Double] = List(
     stabilityMin,
