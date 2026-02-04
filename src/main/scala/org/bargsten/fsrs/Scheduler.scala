@@ -175,6 +175,8 @@ class Scheduler(p: Parameters = Parameters(), rng: Random = Random())(using
     (updatedCard, nextInterval)
   }
 
+  def reviewCard(card: Card, rating: Rating): (Card, ReviewLogEntry) = reviewCard(card, Review(rating))
+
   def reviewCard(
       card: Card,
       review: Review
