@@ -12,9 +12,9 @@ Scala interface.
 <!-- include example/project.scala::dependencies -->
 ```scala
 // Scala CLI
-//> using dep org.bargsten::fsrs4s:0.1.3
+//> using dep org.bargsten::fsrs4s:0.2.0
 // sbt
-// "org.bargsten" %% "fsrs4s" % "0.1.3"
+// "org.bargsten" %% "fsrs4s" % "0.2.0"
 ```
 <!-- endinclude -->
 

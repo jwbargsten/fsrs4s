@@ -21,3 +21,6 @@ upload: dist
 
 snippets:
 	./script/update_snippets.py .
+
+run-example:
+	cd example && scala-cli run .
