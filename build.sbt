@@ -20,7 +20,7 @@ ThisBuild / version := "0.2.0"
 
 lazy val root = project
   .in(file("."))
-  .aggregate(core, java)
+  .aggregate(core)
   .settings(
   scalaVersion := scalacVersion,
       publish / skip := true
@@ -37,20 +37,6 @@ lazy val core = project
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.6",
     )
   )
-
-lazy val java = project
-  .in(file("java"))
-  .settings(
-    scalaVersion := scalacVersion,
-    name := "fsrs4s-java",
-    crossPaths := false,
-    publish / skip := true,
-    libraryDependencies ++= Seq(
-    "org.junit.jupiter" % "junit-jupiter" % "6.0.2" % "test",
-    "org.assertj" % "assertj-core" % "3.27.6" % "test"
-  ))
-
-  .dependsOn(core)
 
 ThisBuild / organizationHomepage := Some(url("https://bargsten.org/"))
 
