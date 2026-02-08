@@ -49,6 +49,19 @@ sbt test      # Run tests
 sbt console   # REPL
 ```
 
+
+## Release Strategy
+
+The versioning scheme uses the format: `MAJOR.MINOR.PATCH`
+
+With this format, API compatibility will be guaranteed for the same MAJOR and MINOR version number.
+
+```
+MAJOR: Incompatible changes will increase this number.
+MINOR: (mostly) compatible feature releases will change this. This is best effort.
+PATCH: Bug fix releases will increment this number. We also allow backporting of accessor functions in these releases.
+```
+
 ## References
 
 - [FSRS Algorithm Wiki](https://github.com/open-spaced-repetition/fsrs4anki/wiki/The-Algorithm)
