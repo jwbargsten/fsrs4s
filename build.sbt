@@ -16,7 +16,7 @@ val vziologging = "2.5.3"
 ThisBuild / organization := "org.bargsten"
 ThisBuild / organizationName := "Joachim Bargsten"
 
-ThisBuild / version := "0.1.3"
+ThisBuild / version := "0.2.0"
 
 lazy val root = project
   .in(file("."))

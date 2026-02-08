@@ -35,7 +35,7 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     val intervals = scala.collection.mutable.ListBuffer[Long]()
 
     for (rating <- testRatings1) {
-      val (updated, _) = scheduler.reviewCard(card, Review(rating, reviewTime))
+      val (updated, _) = scheduler.review(card, Review(rating, reviewTime))
       intervals += ChronoUnit.DAYS.between(updated.lastReview.get, updated.due)
       reviewTime = updated.due
       card = updated
@@ -50,7 +50,7 @@ class PyFsrsBasicSuite extends AnyFunSuite {
 
     for (i <- 0 until 10) {
       val reviewTime = now.plusNanos(i * 1000)
-      val (updated, _) = scheduler.reviewCard(card, Review(Rating.Easy, reviewTime))
+      val (updated, _) = scheduler.review(card, Review(Rating.Easy, reviewTime))
       card = updated
     }
 
@@ -67,7 +67,7 @@ class PyFsrsBasicSuite extends AnyFunSuite {
 
     for ((rating, ivl) <- ratings.zip(ivlHistory)) {
       reviewTime = reviewTime.plusDays(ivl)
-      val (updated, _) = scheduler.reviewCard(card, Review(rating, reviewTime))
+      val (updated, _) = scheduler.review(card, Review(rating, reviewTime))
       card = updated
     }
 
@@ -88,7 +88,7 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     val intervals = scala.collection.mutable.ListBuffer[Long]()
 
     for (rating <- testRatings1) {
-      val (updated, _) = scheduler.reviewCard(card, Review(rating, reviewTime))
+      val (updated, _) = scheduler.review(card, Review(rating, reviewTime))
       intervals += ChronoUnit.DAYS.between(updated.lastReview.get, updated.due)
       reviewTime = updated.due
       card = updated
@@ -117,17 +117,17 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     assert(card.state == State.Learning)
     assert(scheduler.calcRetrievability(card) == 0)
 
-    val (c1, _) = scheduler.reviewCard(card, Review(Rating.Good))
+    val (c1, _) = scheduler.review(card, Review(Rating.Good))
     assert(c1.state == State.Learning)
     val r1 = scheduler.calcRetrievability(c1)
     assert(r1 >= 0 && r1 <= 1)
 
-    val (c2, _) = scheduler.reviewCard(c1, Review(Rating.Good, c1.due))
+    val (c2, _) = scheduler.review(c1, Review(Rating.Good, c1.due))
     assert(c2.state == State.Review)
     val r2 = scheduler.calcRetrievability(c2)
     assert(r2 >= 0 && r2 <= 1)
 
-    val (c3, _) = scheduler.reviewCard(c2, Review(Rating.Again, c2.due))
+    val (c3, _) = scheduler.review(c2, Review(Rating.Again, c2.due))
     assert(c3.state == State.Relearning)
     val r3 = scheduler.calcRetrievability(c3)
     assert(r3 >= 0 && r3 <= 1)
@@ -141,13 +141,13 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     assert(card.state == State.Learning)
     assert(card.step == 0)
 
-    val (c1, _) = scheduler.reviewCard(card, Review(Rating.Good, card.due))
+    val (c1, _) = scheduler.review(card, Review(Rating.Good, card.due))
     assert(c1.state == State.Learning)
     assert(c1.step == 1)
     val secondsUntilDue1 = ChronoUnit.SECONDS.between(createdAt, c1.due)
     assert(secondsUntilDue1 >= 500 && secondsUntilDue1 <= 700) // ~10 minutes
 
-    val (c2, _) = scheduler.reviewCard(c1, Review(Rating.Good, c1.due))
+    val (c2, _) = scheduler.review(c1, Review(Rating.Good, c1.due))
     assert(c2.state == State.Review)
     val hoursUntilDue2 = ChronoUnit.HOURS.between(createdAt, c2.due)
     assert(hoursUntilDue2 >= 24)
@@ -161,7 +161,7 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     assert(card.state == State.Learning)
     assert(card.step == 0)
 
-    val (c1, _) = scheduler.reviewCard(card, Review(Rating.Again, card.due))
+    val (c1, _) = scheduler.review(card, Review(Rating.Again, card.due))
     assert(c1.state == State.Learning)
     assert(c1.step == 0)
     val secondsUntilDue = ChronoUnit.SECONDS.between(createdAt, c1.due)
@@ -176,7 +176,7 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     assert(card.state == State.Learning)
     assert(card.step == 0)
 
-    val (c1, _) = scheduler.reviewCard(card, Review(Rating.Hard, card.due))
+    val (c1, _) = scheduler.review(card, Review(Rating.Hard, card.due))
     assert(c1.state == State.Learning)
     assert(c1.step == 0)
     val secondsUntilDue = ChronoUnit.SECONDS.between(createdAt, c1.due)
@@ -191,7 +191,7 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     assert(card.state == State.Learning)
     assert(card.step == 0)
 
-    val (c1, _) = scheduler.reviewCard(card, Review(Rating.Easy, card.due))
+    val (c1, _) = scheduler.review(card, Review(Rating.Easy, card.due))
     assert(c1.state == State.Review)
     val daysUntilDue = ChronoUnit.DAYS.between(createdAt, c1.due)
     assert(daysUntilDue >= 1)
@@ -201,18 +201,18 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     val scheduler = Scheduler(Parameters(withFuzzing = false))
     var card = Card()
 
-    val (c1, _) = scheduler.reviewCard(card, Review(Rating.Good, card.due))
-    val (c2, _) = scheduler.reviewCard(c1, Review(Rating.Good, c1.due))
+    val (c1, _) = scheduler.review(card, Review(Rating.Good, card.due))
+    val (c2, _) = scheduler.review(c1, Review(Rating.Good, c1.due))
     assert(c2.state == State.Review)
 
     val prevDue = c2.due
-    val (c3, _) = scheduler.reviewCard(c2, Review(Rating.Good, c2.due))
+    val (c3, _) = scheduler.review(c2, Review(Rating.Good, c2.due))
     assert(c3.state == State.Review)
     val hoursUntilDue = ChronoUnit.HOURS.between(prevDue, c3.due)
     assert(hoursUntilDue >= 24)
 
     val prevDue2 = c3.due
-    val (c4, _) = scheduler.reviewCard(c3, Review(Rating.Again, c3.due))
+    val (c4, _) = scheduler.review(c3, Review(Rating.Again, c3.due))
     assert(c4.state == State.Relearning)
     val minutesUntilDue = ChronoUnit.MINUTES.between(prevDue2, c4.due)
     assert(minutesUntilDue == 10)
@@ -222,24 +222,24 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     val scheduler = Scheduler(Parameters(withFuzzing = false))
     var card = Card()
 
-    val (c1, _) = scheduler.reviewCard(card, Review(Rating.Good, card.due))
-    val (c2, _) = scheduler.reviewCard(c1, Review(Rating.Good, c1.due))
-    val (c3, _) = scheduler.reviewCard(c2, Review(Rating.Good, c2.due))
+    val (c1, _) = scheduler.review(card, Review(Rating.Good, card.due))
+    val (c2, _) = scheduler.review(c1, Review(Rating.Good, c1.due))
+    val (c3, _) = scheduler.review(c2, Review(Rating.Good, c2.due))
 
     val prevDue = c3.due
-    val (c4, _) = scheduler.reviewCard(c3, Review(Rating.Again, c3.due))
+    val (c4, _) = scheduler.review(c3, Review(Rating.Again, c3.due))
     assert(c4.state == State.Relearning)
     assert(c4.step == 0)
     assert(ChronoUnit.MINUTES.between(prevDue, c4.due) == 10)
 
     val prevDue2 = c4.due
-    val (c5, _) = scheduler.reviewCard(c4, Review(Rating.Again, c4.due))
+    val (c5, _) = scheduler.review(c4, Review(Rating.Again, c4.due))
     assert(c5.state == State.Relearning)
     assert(c5.step == 0)
     assert(ChronoUnit.MINUTES.between(prevDue2, c5.due) == 10)
 
     val prevDue3 = c5.due
-    val (c6, _) = scheduler.reviewCard(c5, Review(Rating.Good, c5.due))
+    val (c6, _) = scheduler.review(c5, Review(Rating.Good, c5.due))
     assert(c6.state == State.Review)
     assert(ChronoUnit.HOURS.between(prevDue3, c6.due) >= 24)
   }
@@ -248,7 +248,7 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     val scheduler = Scheduler(Parameters(learningSteps = List.empty))
     var card = Card()
 
-    val (c1, _) = scheduler.reviewCard(card, Review(Rating.Again))
+    val (c1, _) = scheduler.review(card, Review(Rating.Again))
     assert(c1.state == State.Review)
     assert(ChronoUnit.DAYS.between(c1.lastReview.get, c1.due) >= 1)
   }
@@ -257,13 +257,13 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     val scheduler = Scheduler(Parameters(relearningSteps = List.empty))
     var card = Card()
 
-    val (c1, _) = scheduler.reviewCard(card, Review(Rating.Good))
+    val (c1, _) = scheduler.review(card, Review(Rating.Good))
     assert(c1.state == State.Learning)
 
-    val (c2, _) = scheduler.reviewCard(c1, Review(Rating.Good, c1.due))
+    val (c2, _) = scheduler.review(c1, Review(Rating.Good, c1.due))
     assert(c2.state == State.Review)
 
-    val (c3, _) = scheduler.reviewCard(c2, Review(Rating.Again, c2.due))
+    val (c3, _) = scheduler.review(c2, Review(Rating.Again, c2.due))
     assert(c3.state == State.Review)
     assert(ChronoUnit.DAYS.between(c3.lastReview.get, c3.due) >= 1)
   }
@@ -280,31 +280,31 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     val now = OffsetDateTime.now(ZoneOffset.UTC)
 
     // learning state tests
-    val (c1, _) = s2Learning.reviewCard(card, Review(Rating.Good, now))
+    val (c1, _) = s2Learning.review(card, Review(Rating.Good, now))
     assert(c1.state == State.Learning)
     assert(c1.step == 1)
 
-    val (c2, _) = s1Learning.reviewCard(c1, Review(Rating.Again, now))
+    val (c2, _) = s1Learning.review(c1, Review(Rating.Again, now))
     assert(c2.state == State.Learning)
     assert(c2.step == 0)
 
-    val (c3, _) = s0Learning.reviewCard(c2, Review(Rating.Hard, now))
+    val (c3, _) = s0Learning.review(c2, Review(Rating.Hard, now))
     assert(c3.state == State.Review)
 
     // relearning state tests
-    val (c4, _) = s2Relearning.reviewCard(c3, Review(Rating.Again, now))
+    val (c4, _) = s2Relearning.review(c3, Review(Rating.Again, now))
     assert(c4.state == State.Relearning)
     assert(c4.step == 0)
 
-    val (c5, _) = s2Relearning.reviewCard(c4, Review(Rating.Good, now))
+    val (c5, _) = s2Relearning.review(c4, Review(Rating.Good, now))
     assert(c5.state == State.Relearning)
     assert(c5.step == 1)
 
-    val (c6, _) = s1Relearning.reviewCard(c5, Review(Rating.Again, now))
+    val (c6, _) = s1Relearning.review(c5, Review(Rating.Again, now))
     assert(c6.state == State.Relearning)
     assert(c6.step == 0)
 
-    val (c7, _) = s0Relearning.reviewCard(c6, Review(Rating.Hard, now))
+    val (c7, _) = s0Relearning.review(c6, Review(Rating.Hard, now))
     assert(c7.state == State.Review)
   }
 
@@ -313,16 +313,16 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     val scheduler = Scheduler(Parameters(maximumInterval = Days(maxInterval)))
     var card = Card()
 
-    val (c1, _) = scheduler.reviewCard(card, Review(Rating.Easy, card.due))
+    val (c1, _) = scheduler.review(card, Review(Rating.Easy, card.due))
     assert(ChronoUnit.DAYS.between(c1.lastReview.get, c1.due) <= maxInterval)
 
-    val (c2, _) = scheduler.reviewCard(c1, Review(Rating.Good, c1.due))
+    val (c2, _) = scheduler.review(c1, Review(Rating.Good, c1.due))
     assert(ChronoUnit.DAYS.between(c2.lastReview.get, c2.due) <= maxInterval)
 
-    val (c3, _) = scheduler.reviewCard(c2, Review(Rating.Easy, c2.due))
+    val (c3, _) = scheduler.review(c2, Review(Rating.Easy, c2.due))
     assert(ChronoUnit.DAYS.between(c3.lastReview.get, c3.due) <= maxInterval)
 
-    val (c4, _) = scheduler.reviewCard(c3, Review(Rating.Good, c3.due))
+    val (c4, _) = scheduler.review(c3, Review(Rating.Good, c3.due))
     assert(ChronoUnit.DAYS.between(c4.lastReview.get, c4.due) <= maxInterval)
   }
 
@@ -337,7 +337,7 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     var card = Card()
 
     for (_ <- 0 until 1000) {
-      val (updated, _) = scheduler.reviewCard(card, Review(Rating.Again, card.due.plusDays(1)))
+      val (updated, _) = scheduler.review(card, Review(Rating.Again, card.due.plusDays(1)))
       assert(updated.stability >= minStability)
       card = updated
     }
@@ -388,7 +388,7 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     var card = Card()
     val initialDue = card.due
 
-    val (c1, _) = scheduler.reviewCard(card, Review(Rating.Hard, card.due))
+    val (c1, _) = scheduler.review(card, Review(Rating.Hard, card.due))
     assert(c1.state == State.Learning)
 
     val intervalMs = ChronoUnit.MILLIS.between(initialDue, c1.due)
@@ -405,12 +405,12 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     assert(card.state == State.Learning)
     assert(card.step == 0)
 
-    val (c1, _) = scheduler.reviewCard(card, Review(Rating.Good, card.due))
+    val (c1, _) = scheduler.review(card, Review(Rating.Good, card.due))
     assert(c1.state == State.Learning)
     assert(c1.step == 1)
 
     val dueAfterFirst = c1.due
-    val (c2, _) = scheduler.reviewCard(c1, Review(Rating.Hard, dueAfterFirst))
+    val (c2, _) = scheduler.review(c1, Review(Rating.Hard, dueAfterFirst))
     val dueAfterSecond = c2.due
 
     assert(c2.state == State.Learning)
@@ -427,14 +427,14 @@ class PyFsrsBasicSuite extends AnyFunSuite {
 
     assert(card.state == State.Learning)
 
-    val (c1, _) = scheduler.reviewCard(card, Review(Rating.Easy, card.due))
+    val (c1, _) = scheduler.review(card, Review(Rating.Easy, card.due))
     assert(c1.state == State.Review)
 
-    val (c2, _) = scheduler.reviewCard(c1, Review(Rating.Again, c1.due))
+    val (c2, _) = scheduler.review(c1, Review(Rating.Again, c1.due))
     assert(c2.state == State.Relearning)
 
     val nextReviewOneDayLate = c2.due.plusDays(1)
-    val (c3, _) = scheduler.reviewCard(c2, Review(Rating.Good, nextReviewOneDayLate))
+    val (c3, _) = scheduler.review(c2, Review(Rating.Good, nextReviewOneDayLate))
     assert(c3.state == State.Review)
   }
 
@@ -443,15 +443,15 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     val scheduler = Scheduler(Parameters(relearningSteps = List(firstStep)))
     var card = Card()
 
-    val (c1, _) = scheduler.reviewCard(card, Review(Rating.Easy, card.due))
+    val (c1, _) = scheduler.review(card, Review(Rating.Easy, card.due))
     assert(c1.state == State.Review)
 
-    val (c2, _) = scheduler.reviewCard(c1, Review(Rating.Again, c1.due))
+    val (c2, _) = scheduler.review(c1, Review(Rating.Again, c1.due))
     assert(c2.state == State.Relearning)
     assert(c2.step == 0)
 
     val prevDue = c2.due
-    val (c3, _) = scheduler.reviewCard(c2, Review(Rating.Hard, prevDue))
+    val (c3, _) = scheduler.review(c2, Review(Rating.Hard, prevDue))
     assert(c3.state == State.Relearning)
     assert(c3.step == 0)
 
@@ -466,15 +466,15 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     val scheduler = Scheduler(Parameters(relearningSteps = List(firstStep, secondStep)))
     var card = Card()
 
-    val (c1, _) = scheduler.reviewCard(card, Review(Rating.Easy, card.due))
+    val (c1, _) = scheduler.review(card, Review(Rating.Easy, card.due))
     assert(c1.state == State.Review)
 
-    val (c2, _) = scheduler.reviewCard(c1, Review(Rating.Again, c1.due))
+    val (c2, _) = scheduler.review(c1, Review(Rating.Again, c1.due))
     assert(c2.state == State.Relearning)
     assert(c2.step == 0)
 
     val prevDue = c2.due
-    val (c3, _) = scheduler.reviewCard(c2, Review(Rating.Hard, prevDue))
+    val (c3, _) = scheduler.review(c2, Review(Rating.Hard, prevDue))
     assert(c3.state == State.Relearning)
     assert(c3.step == 0)
 
@@ -482,12 +482,12 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     val expectedMs = ((firstStep + secondStep) / 2.0).toMillis
     assert(math.abs(intervalMs - expectedMs) < 1000)
 
-    val (c4, _) = scheduler.reviewCard(c3, Review(Rating.Good, c3.due))
+    val (c4, _) = scheduler.review(c3, Review(Rating.Good, c3.due))
     assert(c4.state == State.Relearning)
     assert(c4.step == 1)
 
     val prevDue2 = c4.due
-    val (c5, _) = scheduler.reviewCard(c4, Review(Rating.Hard, prevDue2))
+    val (c5, _) = scheduler.review(c4, Review(Rating.Hard, prevDue2))
     assert(c5.state == State.Relearning)
     assert(c5.step == 1)
 
@@ -495,14 +495,14 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     val expectedMs2 = secondStep.toMillis
     assert(math.abs(intervalMs2 - expectedMs2) < 1000)
 
-    val (c6, _) = scheduler.reviewCard(c5, Review(Rating.Easy, prevDue2))
+    val (c6, _) = scheduler.review(c5, Review(Rating.Easy, prevDue2))
     assert(c6.state == State.Review)
   }
 
   private def reviewToReviewState(scheduler: Scheduler, startTime: OffsetDateTime): Card = {
     var card = Card()
-    val (c1, _) = scheduler.reviewCard(card, Review(Rating.Good, startTime))
-    val (c2, _) = scheduler.reviewCard(c1, Review(Rating.Good, c1.due))
+    val (c1, _) = scheduler.review(card, Review(Rating.Good, startTime))
+    val (c2, _) = scheduler.review(c1, Review(Rating.Good, c1.due))
     c2
   }
 
@@ -512,13 +512,13 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     val scheduler1 = Scheduler(Parameters(), new Random(42))
     val c1 = reviewToReviewState(scheduler1, startTime)
     val prevDue1 = c1.due
-    val (c1After, _) = scheduler1.reviewCard(c1, Review(Rating.Good, c1.due))
+    val (c1After, _) = scheduler1.review(c1, Review(Rating.Good, c1.due))
     val interval1 = ChronoUnit.DAYS.between(prevDue1, c1After.due)
 
     val scheduler2 = Scheduler(Parameters(), new Random(42))
     val c2 = reviewToReviewState(scheduler2, startTime)
     val prevDue2 = c2.due
-    val (c2After, _) = scheduler2.reviewCard(c2, Review(Rating.Good, c2.due))
+    val (c2After, _) = scheduler2.review(c2, Review(Rating.Good, c2.due))
     val interval2 = ChronoUnit.DAYS.between(prevDue2, c2After.due)
 
     assert(interval1 == interval2)
@@ -532,7 +532,7 @@ class PyFsrsBasicSuite extends AnyFunSuite {
       val scheduler = Scheduler(Parameters(), new Random(seed))
       val c = reviewToReviewState(scheduler, startTime)
       val prevDue = c.due
-      val (cAfter, _) = scheduler.reviewCard(c, Review(Rating.Good, c.due))
+      val (cAfter, _) = scheduler.review(c, Review(Rating.Good, c.due))
       intervals += ChronoUnit.DAYS.between(prevDue, cAfter.due)
     }
 
@@ -544,10 +544,10 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     val noFuzzScheduler = Scheduler(Parameters(withFuzzing = false))
 
     // Get to Review state without fuzzing, then measure unfuzzed third-review interval
-    val (c1, _) = noFuzzScheduler.reviewCard(Card(), Review(Rating.Good, startTime))
-    val (c2, _) = noFuzzScheduler.reviewCard(c1, Review(Rating.Good, c1.due))
+    val (c1, _) = noFuzzScheduler.review(Card(), Review(Rating.Good, startTime))
+    val (c2, _) = noFuzzScheduler.review(c1, Review(Rating.Good, c1.due))
     assert(c2.state == State.Review)
-    val (c3, _) = noFuzzScheduler.reviewCard(c2, Review(Rating.Good, c2.due))
+    val (c3, _) = noFuzzScheduler.review(c2, Review(Rating.Good, c2.due))
     val unfuzzedInterval = ChronoUnit.DAYS.between(c3.lastReview.get, c3.due)
 
     // Calculate expected fuzz range
@@ -565,7 +565,7 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     for (seed <- 0L until 100L) {
       val fuzzScheduler = Scheduler(Parameters(), new Random(seed))
       // Use the unfuzzed c2 state but review with the fuzz scheduler
-      val (fc3, _) = fuzzScheduler.reviewCard(c2, Review(Rating.Good, c2.due))
+      val (fc3, _) = fuzzScheduler.review(c2, Review(Rating.Good, c2.due))
       val fuzzedInterval = ChronoUnit.DAYS.between(fc3.lastReview.get, fc3.due)
 
       assert(fuzzedInterval >= minExpected, s"seed=$seed: fuzzed=$fuzzedInterval < minExpected=$minExpected")
@@ -581,13 +581,13 @@ class PyFsrsBasicSuite extends AnyFunSuite {
     var c2 = Card()
     val startTime = OffsetDateTime.now(ZoneOffset.UTC)
 
-    val (c1a, _) = scheduler1.reviewCard(c1, Review(Rating.Good, startTime))
-    val (c2a, _) = scheduler2.reviewCard(c2, Review(Rating.Good, startTime))
+    val (c1a, _) = scheduler1.review(c1, Review(Rating.Good, startTime))
+    val (c2a, _) = scheduler2.review(c2, Review(Rating.Good, startTime))
 
     assert(c1a.due == c2a.due)
 
-    val (c1b, _) = scheduler1.reviewCard(c1a, Review(Rating.Good, c1a.due))
-    val (c2b, _) = scheduler2.reviewCard(c2a, Review(Rating.Good, c2a.due))
+    val (c1b, _) = scheduler1.review(c1a, Review(Rating.Good, c1a.due))
+    val (c2b, _) = scheduler2.review(c2a, Review(Rating.Good, c2a.due))
 
     val interval1 = ChronoUnit.DAYS.between(c1b.lastReview.get, c1b.due)
     val interval2 = ChronoUnit.DAYS.between(c2b.lastReview.get, c2b.due)

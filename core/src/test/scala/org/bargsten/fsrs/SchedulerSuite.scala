@@ -17,7 +17,7 @@ class SchedulerSuite extends AnyFunSuite {
   test("new card with Good rating initializes stability and difficulty") {
     val card = Card()
     val review = Review(Rating.Good, now)
-    val (updated, _) = scheduler.reviewCard(card, review)
+    val (updated, _) = scheduler.review(card, review)
 
     assert(updated.stability > 0)
     assert(updated.difficulty > 0)
@@ -30,7 +30,7 @@ class SchedulerSuite extends AnyFunSuite {
   test("new card with Easy rating transitions to Review") {
     val card = Card()
     val review = Review(Easy, now)
-    val (updated, _) = scheduler.reviewCard(card, review)
+    val (updated, _) = scheduler.review(card, review)
 
     assert(updated.state == State.Review)
     assert(updated.step == 0)
@@ -39,20 +39,20 @@ class SchedulerSuite extends AnyFunSuite {
 
   test("learning card progresses through steps with Good") {
     val card = Card()
-    val (c1, _) = scheduler.reviewCard(card, Review(Rating.Good, now))
+    val (c1, _) = scheduler.review(card, Review(Rating.Good, now))
     assert(c1.state == State.Learning)
     assert(c1.step == 1)
 
-    val (c2, _) = scheduler.reviewCard(c1, Review(Rating.Good, now.plusMinutes(10)))
+    val (c2, _) = scheduler.review(c1, Review(Rating.Good, now.plusMinutes(10)))
     assert(c2.state == State.Review)
   }
 
   test("learning card resets step on Again") {
     val card = Card()
-    val (c1, _) = scheduler.reviewCard(card, Review(Rating.Good, now))
+    val (c1, _) = scheduler.review(card, Review(Rating.Good, now))
     assert(c1.step == 1)
 
-    val (c2, _) = scheduler.reviewCard(c1, Review(Rating.Again, now.plusMinutes(10)))
+    val (c2, _) = scheduler.review(c1, Review(Rating.Again, now.plusMinutes(10)))
     assert(c2.step == 0)
     assert(c2.state == State.Learning)
   }
@@ -64,7 +64,7 @@ class SchedulerSuite extends AnyFunSuite {
       difficulty = 5.0,
       lastReview = Some(now.minusDays(10))
     )
-    val (updated, _) = scheduler.reviewCard(reviewCard, Review(Rating.Again, now))
+    val (updated, _) = scheduler.review(reviewCard, Review(Rating.Again, now))
 
     assert(updated.state == State.Relearning)
     assert(updated.step == 0)
@@ -78,7 +78,7 @@ class SchedulerSuite extends AnyFunSuite {
       lastReview = Some(now.minusDays(10))
     )
     val review = Review(Rating.Good, now)
-    val (updated, _) = scheduler.reviewCard(reviewCard, review)
+    val (updated, _) = scheduler.review(reviewCard, review)
 
     assert(updated.state == State.Review)
     assert(updated.stability > reviewCard.stability)
@@ -93,7 +93,7 @@ class SchedulerSuite extends AnyFunSuite {
       lastReview = Some(now.minusMinutes(10))
     )
     val review = Review(Rating.Good, now)
-    val (updated, _) = scheduler.reviewCard(relearningCard, review)
+    val (updated, _) = scheduler.review(relearningCard, review)
 
     assert(updated.state == State.Review)
   }
@@ -106,7 +106,7 @@ class SchedulerSuite extends AnyFunSuite {
       lastReview = Some(now.minusDays(10))
     )
     val review = Review(Rating.Good, now)
-    val (updated, _) = scheduler.reviewCard(reviewCard, review)
+    val (updated, _) = scheduler.review(reviewCard, review)
     assert(updated.stability > reviewCard.stability)
   }
 
@@ -118,7 +118,7 @@ class SchedulerSuite extends AnyFunSuite {
       lastReview = Some(now.minusDays(10))
     )
     val review = Review(Rating.Easy, now)
-    val (updated, _) = scheduler.reviewCard(reviewCard, review)
+    val (updated, _) = scheduler.review(reviewCard, review)
     assert(updated.difficulty < reviewCard.difficulty)
   }
 
@@ -130,7 +130,7 @@ class SchedulerSuite extends AnyFunSuite {
       lastReview = Some(now.minusDays(10))
     )
     val review = Review(Rating.Again, now)
-    val (updated, _) = scheduler.reviewCard(reviewCard, review)
+    val (updated, _) = scheduler.review(reviewCard, review)
     assert(updated.difficulty > reviewCard.difficulty)
   }
 
@@ -138,7 +138,7 @@ class SchedulerSuite extends AnyFunSuite {
     val card = Card()
     val duration = Some(5.seconds)
     val review = Review(Rating.Good, now, duration)
-    val (_, logEntry) = scheduler.reviewCard(card, review)
+    val (_, logEntry) = scheduler.review(card, review)
 
     assert(logEntry.cardId == card.id)
     assert(logEntry.rating == Rating.Good)
@@ -152,7 +152,7 @@ class SchedulerSuite extends AnyFunSuite {
     val card = Card()
 
     val review = Review(Rating.Good, now)
-    val (updated, _) = schedulerNoSteps.reviewCard(card, review)
+    val (updated, _) = schedulerNoSteps.review(card, review)
     assert(updated.state == State.Review)
   }
 
@@ -191,7 +191,7 @@ class SchedulerSuite extends AnyFunSuite {
 
     for (rating <- testRatings) {
       val review = Review(rating, reviewTime)
-      val (updated, _) = pythonScheduler.reviewCard(card, review)
+      val (updated, _) = pythonScheduler.review(card, review)
       val intervalDays = ChronoUnit.DAYS.between(updated.lastReview.get, updated.due)
       intervals += intervalDays
       reviewTime = updated.due
@@ -214,7 +214,7 @@ class SchedulerSuite extends AnyFunSuite {
     for ((rating, ivl) <- ratings.zip(ivlHistory)) {
       reviewTime = reviewTime.plusDays(ivl)
       val review = Review(rating, reviewTime)
-      val (updated, _) = pythonScheduler.reviewCard(card, review)
+      val (updated, _) = pythonScheduler.review(card, review)
       card = updated
     }
 

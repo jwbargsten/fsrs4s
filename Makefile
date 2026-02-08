@@ -1,3 +1,4 @@
+.PHONY: snippets fmt clean build dist upload
 
 fmt:
 	sbt scalafmtAll
@@ -9,8 +10,14 @@ clean:
 build:
 	sbt compile
 
-dist: clean build
+test:
+	sbt test
+
+dist: clean build test snippets 
 	publish-sbt-sonatype publishSigned
 
 upload: dist
 	publish-sbt-sonatype sonaUpload
+
+snippets:
+	./script/update_snippets.py .

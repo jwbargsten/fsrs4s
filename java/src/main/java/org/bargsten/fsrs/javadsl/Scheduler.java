@@ -62,7 +62,7 @@ public final class Scheduler {
     }
 
     public ReviewResult reviewCard(Card card, Rating rating) {
-        var result = underlying.reviewCard(card.unwrap(), Converters.toScala(rating));
+        var result = underlying.review(card.unwrap(), Converters.toScala(rating));
         return new ReviewResult(
             Card.wrap(result._1()),
             ReviewLogEntry.wrap(result._2())
@@ -70,7 +70,7 @@ public final class Scheduler {
     }
 
     public ReviewResult reviewCard(Card card, Review review) {
-        var result = underlying.reviewCard(card.unwrap(), review.unwrap());
+        var result = underlying.review(card.unwrap(), review.unwrap());
         return new ReviewResult(
             Card.wrap(result._1()),
             ReviewLogEntry.wrap(result._2())

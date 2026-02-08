@@ -173,9 +173,9 @@ class Scheduler(p: Parameters = Parameters(), rng: Random = Random())(using
     (updatedCard, nextInterval)
   }
 
-  def reviewCard(card: Card, rating: Rating): (Card, ReviewLogEntry) = reviewCard(card, Review(rating))
+  def review(card: Card, rating: Rating): (Card, ReviewLogEntry) = review(card, Review(rating))
 
-  def reviewCard(
+  def review(
       card: Card,
       review: Review
   ): (Card, ReviewLogEntry) = {
@@ -186,7 +186,7 @@ class Scheduler(p: Parameters = Parameters(), rng: Random = Random())(using
       case State.Relearning => reviewRelearning(card, review)
     }).cond {
       case (card, nextInterval) if p.withFuzzing && card.state == State.Review =>
-        (card, getFuzzedInterval(nextInterval))
+        (card, calcFuzzedInterval(nextInterval))
     }
 
     (
@@ -199,7 +199,7 @@ class Scheduler(p: Parameters = Parameters(), rng: Random = Random())(using
     )
   }
 
-  private def getFuzzedInterval(interval: Duration): Duration = {
+  private def calcFuzzedInterval(interval: Duration): Duration = {
     val intervalDays = interval.toDays.toInt
     if (intervalDays < 2.5) return interval
 
