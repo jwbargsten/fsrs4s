@@ -5,3 +5,5 @@
 // sbt
 // "org.bargsten" %% "fsrs4s" % "0.2.0"
 // :xns
+//> using repository "ivy2Local"
+//> using repository "m2Local"

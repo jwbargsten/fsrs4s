@@ -1,4 +1,4 @@
-val scalacVersion = "3.8.1"
+val scalacVersion = "3.3.7"
 val catsVersion = "2.12.0"
 val scodecBitsVersion = "1.2.1"
 val munitVersion = "1.0.2"
@@ -16,7 +16,7 @@ val vziologging = "2.5.3"
 ThisBuild / organization := "org.bargsten"
 ThisBuild / organizationName := "Joachim Bargsten"
 
-ThisBuild / version := "0.2.0"
+ThisBuild / version := "0.2.1"
 
 lazy val root = project
   .in(file("."))
